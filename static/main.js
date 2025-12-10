@@ -15,13 +15,17 @@ let historyLabels = [];
 let cpuHistory = [];
 let memHistory = [];
 
+let latestProcesses = [];
+
 let currentSort = "cpu";
 let sortCpu = true;
 let sortMem = true;
 let sortPid = true;
 let sortName = true;
 
-let latestProcesses = [];
+// pagination
+let currentPage = 1;
+let rowsPerPage = 20;
 
 function fmtPercent(v) {
   return v.toFixed(1) + "%";
@@ -60,7 +64,7 @@ function initCharts() {
   });
 }
 
-// Column Sorting Click Handlers
+// CLICK SORT HEADERS
 document.querySelectorAll("th[data-sort]").forEach(th => {
   th.addEventListener("click", () => {
     const field = th.getAttribute("data-sort");
@@ -100,7 +104,7 @@ async function fetchSummary() {
 }
 
 async function fetchProcesses() {
-  const res = await fetch("/api/processes?limit=60");
+  const res = await fetch("/api/processes?limit=200");
   latestProcesses = await res.json();
   renderProcessTable();
 }
@@ -114,6 +118,7 @@ function renderProcessTable() {
     (p.name || "").toLowerCase().includes(searchTerm)
   );
 
+  // sorting
   if (currentSort === "cpu") result.sort((a, b) => sortCpu ? b.cpu_percent - a.cpu_percent : a.cpu_percent - b.cpu_percent);
   if (currentSort === "memory") result.sort((a, b) => sortMem ? b.memory_percent - a.memory_percent : a.memory_percent - b.memory_percent);
   if (currentSort === "pid") result.sort((a, b) => sortPid ? a.pid - b.pid : b.pid - a.pid);
@@ -121,8 +126,13 @@ function renderProcessTable() {
     (a.name || "").localeCompare(b.name || "") :
     (b.name || "").localeCompare(a.name || ""));
 
+  // pagination
+  let start = (currentPage - 1) * rowsPerPage;
+  let end = start + rowsPerPage;
+  let pageItems = result.slice(start, end);
+
   tbody.innerHTML = "";
-  result.forEach((p) => {
+  pageItems.forEach((p) => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>${p.pid}</td>
@@ -134,27 +144,42 @@ function renderProcessTable() {
     `;
     tbody.appendChild(tr);
   });
+
+  // update page info
+  document.getElementById("pageInfo").textContent =
+    `Page ${currentPage} of ${Math.ceil(result.length / rowsPerPage)}`;
 }
 
+// Button handlers
+document.getElementById("prevBtn").addEventListener("click", () => {
+  if (currentPage > 1) {
+    currentPage--;
+    renderProcessTable();
+  }
+});
+
+document.getElementById("nextBtn").addEventListener("click", () => {
+  currentPage++;
+  renderProcessTable();
+});
+
+// Control Panel
 async function killProcess(pid) {
   if (!confirm("Kill process " + pid + "?")) return;
   await fetch("/api/processes/" + pid + "/kill", { method: "POST" });
   fetchProcesses();
 }
 
-// Control Panel
 async function shutdownPC() {
   if (confirm("Shutdown computer?")) {
     await fetch("/api/shutdown", { method: "POST" });
   }
 }
-
 async function restartPC() {
   if (confirm("Restart computer?")) {
     await fetch("/api/restart", { method: "POST" });
   }
 }
-
 async function logoffPC() {
   if (confirm("Logoff user?")) {
     await fetch("/api/logoff", { method: "POST" });
