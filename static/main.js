@@ -68,12 +68,6 @@ function fmtPercent(v) { return v.toFixed(1) + "%"; }
 // Summary API
 // ====================================
 
-let tempEl = document.getElementById("sys-temp");
-let t = data.temperature;
-
-if (t > 80) tempEl.className = "value hot";
-else if (t > 60) tempEl.className = "value warn";
-else tempEl.className = "value";
 
 async function fetchSummary() {
   const res = await fetch("/api/summary");
@@ -103,6 +97,12 @@ async function fetchSummary() {
 
   document.getElementById("sys-temp").textContent =
   data.temperature ? data.temperature + " °C" : "N/A";
+  let tempEl = document.getElementById("sys-temp");
+let t = data.temperature;
+
+if (t > 80) tempEl.className = "value hot";
+else if (t > 60) tempEl.className = "value warn";
+else tempEl.className = "value";
 
   cpuMemChart.update();
   perCoreChart.data.labels = data.per_cpu.map((_, i) => "Core " + i);
@@ -127,6 +127,7 @@ let sortCpu = true, sortMem = true, sortPid = true, sortName = true;
 
 let currentPage = 1;
 let rowsPerPage = 20;
+
 
 function renderProcessTable() {
   const tbody = document.getElementById("process-tbody");
