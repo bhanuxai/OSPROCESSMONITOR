@@ -8,7 +8,6 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-
 <body>
   <div class="app-container">
 
@@ -34,7 +33,7 @@
     <!-- OVERVIEW -->
     <section id="tab-overview" class="tab-page active">
 
-      <!-- SYSTEM INFO -->
+      <!-- SYSTEM INFO CARDS -->
       <section class="cards">
         <div class="card glass"><h2>OS</h2><p class="value" id="sys-os">--</p></div>
         <div class="card glass"><h2>CPU Model</h2><p class="value" id="sys-cpu">--</p></div>
@@ -42,20 +41,18 @@
         <div class="card glass"><h2>Uptime</h2><p class="value" id="sys-uptime">--</p></div>
       </section>
 
-      <!-- USAGE -->
+      <!-- USAGE CARDS -->
       <section class="cards">
         <div class="card glass">
           <h2>CPU Usage</h2>
           <p class="value" id="cpu-value">--%</p>
           <div class="meter"><div id="cpu-meter-fill" class="meter-fill"></div></div>
         </div>
-
         <div class="card glass">
           <h2>Memory Usage</h2>
           <p class="value" id="mem-value">--%</p>
           <div class="meter"><div id="mem-meter-fill" class="meter-fill"></div></div>
         </div>
-
         <div class="card glass">
           <h2>Disk Usage</h2>
           <p class="value" id="disk-value">--%</p>
@@ -74,16 +71,25 @@
           <canvas id="perCoreChart"></canvas>
         </div>
       </section>
-
     </section>
 
-    <!-- PROCESSES -->
+    <!-- PROCESSES TAB -->
     <section id="tab-processes" class="tab-page">
       <div class="table-section glass">
 
+        <!-- AUTO REFRESH TOGGLE -->
+        <div style="margin-bottom: 10px;">
+          <label>
+            <input type="checkbox" id="autoRefreshToggle" checked>
+            Auto Refresh (every 2s)
+          </label>
+        </div>
+
         <div class="table-header">
           <h2>Top Processes</h2>
-          <input type="text" id="process-search" placeholder="Search by name or PID..." />
+          <div class="table-controls">
+            <input type="text" id="process-search" placeholder="Search by name or PID..." />
+          </div>
         </div>
 
         <div class="table-wrapper">
@@ -100,6 +106,13 @@
             </thead>
             <tbody id="process-tbody"></tbody>
           </table>
+        </div>
+
+        <!-- PAGINATION -->
+        <div class="pagination">
+          <button id="prevBtn">⬅ Prev</button>
+          <span id="pageInfo"></span>
+          <button id="nextBtn">Next ➡</button>
         </div>
 
         <p class="hint">* Updates every 2 seconds.</p>
@@ -119,10 +132,10 @@
 
   </div>
 
-  <!-- TOAST CONTAINER -->
+  <!-- TOAST -->
   <div id="toast-container"></div>
 
-  <!-- KILL MODAL -->
+  <!-- MODAL -->
   <div id="modal-overlay" class="modal-overlay">
     <div class="modal glass">
       <h2>Kill Process?</h2>

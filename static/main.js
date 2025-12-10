@@ -1,6 +1,6 @@
-// =============================
+// ====================================
 // Tabs
-// =============================
+// ====================================
 document.querySelectorAll(".tab-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
@@ -10,21 +10,31 @@ document.querySelectorAll(".tab-btn").forEach((btn) => {
   });
 });
 
-// =============================
-// Toast
-// =============================
+// ====================================
+// Toast notifications
+// ====================================
 function showToast(message, isError = false) {
   const container = document.getElementById("toast-container");
   const div = document.createElement("div");
   div.className = "toast" + (isError ? " error" : "");
   div.textContent = message;
   container.appendChild(div);
-  setTimeout(() => div.remove(), 3500);
+  setTimeout(() => div.remove(), 4000);
 }
 
-// =============================
+// ====================================
+// Auto refresh toggle
+// ====================================
+let autoRefresh = true;
+
+document.getElementById("autoRefreshToggle").addEventListener("change", (e) => {
+  autoRefresh = e.target.checked;
+  showToast(autoRefresh ? "🔄 Auto refresh enabled" : "⏸ Auto refresh paused");
+});
+
+// ====================================
 // Charts
-// =============================
+// ====================================
 let cpuMemChart, perCoreChart;
 let historyLabels = [], cpuHistory = [], memHistory = [];
 let latestProcesses = [];
@@ -52,9 +62,11 @@ function initCharts() {
   });
 }
 
-// =============================
-// Fetch Summary
-// =============================
+function fmtPercent(v) { return v.toFixed(1) + "%"; }
+
+// ====================================
+// Summary API
+// ====================================
 async function fetchSummary() {
   const res = await fetch("/api/summary");
   const data = await res.json();
@@ -74,54 +86,38 @@ async function fetchSummary() {
   document.getElementById("sys-ram").textContent = data.system.total_ram + " GB";
   document.getElementById("sys-uptime").textContent = data.system.uptime;
 
-  document.getElementById("cpu-value").textContent = data.cpu_percent + "%";
+  document.getElementById("cpu-value").textContent = fmtPercent(data.cpu_percent);
   document.getElementById("cpu-meter-fill").style.width = data.cpu_percent + "%";
-
-  document.getElementById("mem-value").textContent = data.memory.percent + "%";
+  document.getElementById("mem-value").textContent = fmtPercent(data.memory.percent);
   document.getElementById("mem-meter-fill").style.width = data.memory.percent + "%";
-
-  document.getElementById("disk-value").textContent = data.disk.percent + "%";
+  document.getElementById("disk-value").textContent = fmtPercent(data.disk.percent);
   document.getElementById("disk-meter-fill").style.width = data.disk.percent + "%";
 
   cpuMemChart.update();
   perCoreChart.data.labels = data.per_cpu.map((_, i) => "Core " + i);
   perCoreChart.data.datasets[0].data = data.per_cpu;
   perCoreChart.update();
-
-  document.getElementById("current-time").textContent = "Last update: " + data.time;
 }
 
-// =============================
-// Fetch Processes
-// =============================
+// ====================================
+// Processes API
+// ====================================
 async function fetchProcesses() {
-  const res = await fetch("/api/processes");
+  const res = await fetch("/api/processes?limit=200");
   latestProcesses = await res.json();
-  renderTable();
+  renderProcessTable();
 }
 
-// =============================
-// Sorting
-// =============================
+// ====================================
+// Table Rendering
+// ====================================
 let currentSort = "cpu";
 let sortCpu = true, sortMem = true, sortPid = true, sortName = true;
 
-document.querySelectorAll("th[data-sort]").forEach(th => {
-  th.addEventListener("click", () => {
-    const f = th.getAttribute("data-sort");
-    if (f === "cpu") sortCpu = !sortCpu;
-    if (f === "memory") sortMem = !sortMem;
-    if (f === "pid") sortPid = !sortPid;
-    if (f === "name") sortName = !sortName;
-    currentSort = f;
-    renderTable();
-  });
-});
+let currentPage = 1;
+let rowsPerPage = 20;
 
-// =============================
-// Render table
-// =============================
-function renderTable() {
+function renderProcessTable() {
   const tbody = document.getElementById("process-tbody");
   const searchTerm = document.getElementById("process-search").value.toLowerCase();
 
@@ -137,8 +133,12 @@ function renderTable() {
     (a.name || "").localeCompare(b.name || "") :
     (b.name || "").localeCompare(a.name || ""));
 
+  let start = (currentPage - 1) * rowsPerPage;
+  let end = start + rowsPerPage;
+  let pageItems = result.slice(start, end);
+
   tbody.innerHTML = "";
-  result.forEach(p => {
+  pageItems.forEach((p) => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>${p.pid}</td>
@@ -146,15 +146,47 @@ function renderTable() {
       <td>${p.cpu_percent.toFixed(1)}</td>
       <td>${p.memory_percent.toFixed(1)}</td>
       <td>${p.status}</td>
-      <td><button onclick="killProcess(${p.pid})" class="cp-btn danger">Kill</button></td>
+      <td><button class="kill-btn" onclick="killProcess(${p.pid})">Kill</button></td>
     `;
     tbody.appendChild(tr);
   });
+
+  document.getElementById("pageInfo").textContent =
+    `Page ${currentPage} of ${Math.ceil(result.length / rowsPerPage)}`;
 }
 
-// =============================
-// Kill modal
-// =============================
+// ====================================
+// Sorting
+// ====================================
+document.querySelectorAll("th[data-sort]").forEach(th => {
+  th.addEventListener("click", () => {
+    const field = th.getAttribute("data-sort");
+    if (field === "cpu") sortCpu = !sortCpu;
+    if (field === "memory") sortMem = !sortMem;
+    if (field === "pid") sortPid = !sortPid;
+    if (field === "name") sortName = !sortName;
+    currentSort = field;
+    renderProcessTable();
+  });
+});
+
+// ====================================
+// Pagination
+// ====================================
+document.getElementById("prevBtn").addEventListener("click", () => {
+  if (currentPage > 1) {
+    currentPage--;
+    renderProcessTable();
+  }
+});
+document.getElementById("nextBtn").addEventListener("click", () => {
+  currentPage++;
+  renderProcessTable();
+});
+
+// ====================================
+// Modal Kill
+// ====================================
 let modalPid = null;
 let modalName = null;
 
@@ -174,7 +206,7 @@ document.getElementById("confirmKill").addEventListener("click", async () => {
   const data = await res.json();
 
   if (data.success) showToast("✔ Process " + modalPid + " killed");
-  else showToast("❌ Failed to kill process", true);
+  else showToast("❌ Failed to kill " + modalPid, true);
 
   document.getElementById("modal-overlay").style.display = "none";
   fetchProcesses();
@@ -184,20 +216,38 @@ document.getElementById("cancelKill").addEventListener("click", () => {
   document.getElementById("modal-overlay").style.display = "none";
 });
 
-// =============================
-// Control panel
-// =============================
-async function shutdownPC() { if (confirm("Shutdown?")) showToast("Shutdown sent"); }
-async function restartPC() { if (confirm("Restart?")) showToast("Restart sent"); }
-async function logoffPC() { if (confirm("Logoff?")) showToast("Logoff sent"); }
+// ====================================
+// System Buttons
+// ====================================
+async function shutdownPC() {
+  if (confirm("Shutdown computer?")) {
+    await fetch("/api/shutdown", { method: "POST" });
+    showToast("⚠ Shutdown command sent");
+  }
+}
 
-// =============================
-// Init
-// =============================
+async function restartPC() {
+  if (confirm("Restart computer?")) {
+    await fetch("/api/restart", { method: "POST" });
+    showToast("⚠ Restart command sent");
+  }
+}
+
+async function logoffPC() {
+  if (confirm("Logoff user?")) {
+    await fetch("/api/logoff", { method: "POST" });
+    showToast("⚠ Logoff command sent");
+  }
+}
+
+// ====================================
+// Start App
+// ====================================
 window.addEventListener("DOMContentLoaded", () => {
   initCharts();
   fetchSummary();
   fetchProcesses();
-  setInterval(fetchSummary, 1000);
-  setInterval(fetchProcesses, 2000);
+
+  setInterval(() => { if (autoRefresh) fetchSummary(); }, 1000);
+  setInterval(() => { if (autoRefresh) fetchProcesses(); }, 2000);
 });
