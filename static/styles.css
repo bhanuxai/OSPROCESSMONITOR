@@ -132,6 +132,15 @@ body {
 }
 
 /* TABLE */
+th[data-sort] {
+  cursor: pointer;
+  color: #93c5fd;
+}
+
+th[data-sort]:hover {
+  background: rgba(59,130,246,0.2);
+}
+
 .table-section {
   padding: 14px;
 }

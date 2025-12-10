@@ -33,7 +33,6 @@
     <nav class="tabs glass">
       <button class="tab-btn active" data-tab="overview">📊 Overview</button>
       <button class="tab-btn" data-tab="processes">🧪 Processes</button>
-      <!-- Process Tree tab removed -->
       <button class="tab-btn" data-tab="controlPanel">🛠 Control Panel</button>
     </nav>
 
@@ -95,10 +94,10 @@
           <table>
             <thead>
               <tr>
-                <th>PID</th>
-                <th>Name</th>
-                <th>CPU %</th>
-                <th>Memory %</th>
+                <th data-sort="pid">PID ▲▼</th>
+                <th data-sort="name">Name ▲▼</th>
+                <th data-sort="cpu">CPU % ▲▼</th>
+                <th data-sort="memory">Memory % ▲▼</th>
                 <th>Status</th>
                 <th>Action</th>
               </tr>

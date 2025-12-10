@@ -15,6 +15,12 @@ let historyLabels = [];
 let cpuHistory = [];
 let memHistory = [];
 
+let currentSort = "cpu";
+let sortCpu = true;
+let sortMem = true;
+let sortPid = true;
+let sortName = true;
+
 let latestProcesses = [];
 
 function fmtPercent(v) {
@@ -54,6 +60,21 @@ function initCharts() {
   });
 }
 
+// Column Sorting Click Handlers
+document.querySelectorAll("th[data-sort]").forEach(th => {
+  th.addEventListener("click", () => {
+    const field = th.getAttribute("data-sort");
+
+    if (field === "cpu") sortCpu = !sortCpu;
+    if (field === "memory") sortMem = !sortMem;
+    if (field === "pid") sortPid = !sortPid;
+    if (field === "name") sortName = !sortName;
+
+    currentSort = field;
+    renderProcessTable();
+  });
+});
+
 async function fetchSummary() {
   const res = await fetch("/api/summary");
   const data = await res.json();
@@ -87,16 +108,18 @@ async function fetchProcesses() {
 function renderProcessTable() {
   const tbody = document.getElementById("process-tbody");
   const searchTerm = document.getElementById("process-search").value.toLowerCase();
-  const sortBy = document.getElementById("sort-select").value;
 
   let result = latestProcesses.filter((p) =>
     p.pid.toString().includes(searchTerm) ||
     (p.name || "").toLowerCase().includes(searchTerm)
   );
 
-  if (sortBy === "cpu") result.sort((a, b) => b.cpu_percent - a.cpu_percent);
-  if (sortBy === "memory") result.sort((a, b) => b.memory_percent - a.memory_percent);
-  if (sortBy === "pid") result.sort((a, b) => a.pid - b.pid);
+  if (currentSort === "cpu") result.sort((a, b) => sortCpu ? b.cpu_percent - a.cpu_percent : a.cpu_percent - b.cpu_percent);
+  if (currentSort === "memory") result.sort((a, b) => sortMem ? b.memory_percent - a.memory_percent : a.memory_percent - b.memory_percent);
+  if (currentSort === "pid") result.sort((a, b) => sortPid ? a.pid - b.pid : b.pid - a.pid);
+  if (currentSort === "name") result.sort((a, b) => sortName ?
+    (a.name || "").localeCompare(b.name || "") :
+    (b.name || "").localeCompare(a.name || ""));
 
   tbody.innerHTML = "";
   result.forEach((p) => {

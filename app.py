@@ -6,7 +6,6 @@ import datetime
 
 app = Flask(__name__)
 
-
 def get_system_summary():
     cpu_percent = psutil.cpu_percent(interval=0.3)
     per_cpu = psutil.cpu_percent(interval=None, percpu=True)
@@ -35,7 +34,6 @@ def get_system_summary():
         }
     }
 
-
 def get_process_list(limit=40):
     processes = []
     for p in psutil.process_iter(["pid", "name", "cpu_percent", "memory_percent", "status"]):
@@ -54,25 +52,18 @@ def get_process_list(limit=40):
     processes.sort(key=lambda x: x["cpu_percent"], reverse=True)
     return processes[:limit]
 
-
 @app.route("/")
 def index():
     return render_template("index.html")
-
 
 @app.route("/api/summary")
 def api_summary():
     return jsonify(get_system_summary())
 
-
 @app.route("/api/processes")
 def api_processes():
     limit = request.args.get("limit", default=40, type=int)
     return jsonify(get_process_list(limit))
-
-
-# Process Tree API removed
-
 
 @app.route("/api/processes/<int:pid>/kill", methods=["POST"])
 def api_kill_process(pid):
@@ -87,18 +78,15 @@ def api_kill_process(pid):
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500
 
-
 @app.route("/api/shutdown", methods=["POST"])
 def shutdown():
     os.system("shutdown /s /t 1")
     return jsonify({"success": True})
 
-
 @app.route("/api/restart", methods=["POST"])
 def restart():
     os.system("shutdown /r /t 1")
     return jsonify({"success": True})
-
 
 @app.route("/api/logoff", methods=["POST"])
 def logoff():
@@ -108,7 +96,5 @@ def logoff():
         os.system("pkill -KILL -u $USER")
     return jsonify({"success": True})
 
-
 if __name__ == "__main__":
     app.run(debug=True)
-    
