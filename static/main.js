@@ -1,4 +1,4 @@
-// Tab switching
+// Tabs
 document.querySelectorAll(".tab-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
@@ -8,15 +8,13 @@ document.querySelectorAll(".tab-btn").forEach((btn) => {
   });
 });
 
-let cpuMemChart;
-let perCoreChart;
-
+let cpuMemChart, perCoreChart;
 let historyLabels = [];
 let cpuHistory = [];
 let memHistory = [];
-
 let latestProcesses = [];
 
+// sorting
 let currentSort = "cpu";
 let sortCpu = true;
 let sortMem = true;
@@ -44,27 +42,21 @@ function updateMeters(cpu, mem, disk) {
 function initCharts() {
   cpuMemChart = new Chart(document.getElementById("cpuMemChart"), {
     type: "line",
-    data: {
-      labels: historyLabels,
-      datasets: [
-        { label: "CPU %", data: cpuHistory, borderWidth: 1 },
-        { label: "Memory %", data: memHistory, borderWidth: 1 }
-      ]
-    },
+    data: { labels: historyLabels, datasets: [
+      { label: "CPU %", data: cpuHistory },
+      { label: "Memory %", data: memHistory }
+    ]},
     options: { responsive: true, scales: { y: { max: 100 } } }
   });
 
   perCoreChart = new Chart(document.getElementById("perCoreChart"), {
     type: "bar",
-    data: {
-      labels: [],
-      datasets: [{ label: "CPU per core %", data: [], borderWidth: 1 }]
-    },
+    data: { labels: [], datasets: [{ label: "CPU per core %", data: [] }]},
     options: { responsive: true, scales: { y: { max: 100 } } }
   });
 }
 
-// CLICK SORT HEADERS
+// Click sorting
 document.querySelectorAll("th[data-sort]").forEach(th => {
   th.addEventListener("click", () => {
     const field = th.getAttribute("data-sort");
@@ -94,6 +86,12 @@ async function fetchSummary() {
   }
 
   updateMeters(data.cpu_percent, data.memory.percent, data.disk.percent);
+
+  // Update system cards
+  document.getElementById("sys-os").textContent = data.system.os;
+  document.getElementById("sys-cpu").textContent = data.system.cpu;
+  document.getElementById("sys-ram").textContent = data.system.total_ram + " GB";
+  document.getElementById("sys-uptime").textContent = data.system.uptime;
 
   cpuMemChart.update();
   perCoreChart.data.labels = data.per_cpu.map((_, i) => "Core " + i);
@@ -150,26 +148,26 @@ function renderProcessTable() {
     `Page ${currentPage} of ${Math.ceil(result.length / rowsPerPage)}`;
 }
 
-// Button handlers
+// pagination buttons
 document.getElementById("prevBtn").addEventListener("click", () => {
   if (currentPage > 1) {
     currentPage--;
     renderProcessTable();
   }
 });
-
 document.getElementById("nextBtn").addEventListener("click", () => {
   currentPage++;
   renderProcessTable();
 });
 
-// Control Panel
+// Kill
 async function killProcess(pid) {
   if (!confirm("Kill process " + pid + "?")) return;
   await fetch("/api/processes/" + pid + "/kill", { method: "POST" });
   fetchProcesses();
 }
 
+// Shutdown / restart / logoff
 async function shutdownPC() {
   if (confirm("Shutdown computer?")) {
     await fetch("/api/shutdown", { method: "POST" });

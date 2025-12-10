@@ -13,6 +13,8 @@ def get_system_summary():
     swap = psutil.swap_memory()
     disk = psutil.disk_usage("/")
 
+    uptime_delta = datetime.datetime.now() - datetime.datetime.fromtimestamp(psutil.boot_time())
+
     return {
         "time": datetime.datetime.now().strftime("%H:%M:%S"),
         "cpu_percent": cpu_percent,
@@ -31,6 +33,12 @@ def get_system_summary():
             "total": disk.total,
             "used": disk.used,
             "percent": disk.percent
+        },
+        "system": {
+            "os": platform.system(),
+            "cpu": platform.processor(),
+            "total_ram": round(virtual_mem.total / (1024**3), 2),
+            "uptime": str(uptime_delta).split('.')[0]
         }
     }
 
@@ -46,7 +54,7 @@ def get_process_list(limit=40):
                 "memory_percent": round(info["memory_percent"], 2),
                 "status": info["status"]
             })
-        except (psutil.NoSuchProcess, psutil.AccessDenied):
+        except:
             continue
 
     processes.sort(key=lambda x: x["cpu_percent"], reverse=True)
@@ -70,13 +78,9 @@ def api_kill_process(pid):
     try:
         p = psutil.Process(pid)
         p.kill()
-        return jsonify({"success": True, "message": f"Process {pid} killed"})
-    except psutil.NoSuchProcess:
-        return jsonify({"success": False, "message": "Process not found"}), 404
-    except psutil.AccessDenied:
-        return jsonify({"success": False, "message": "Access denied"}), 403
-    except Exception as e:
-        return jsonify({"success": False, "message": str(e)}), 500
+        return jsonify({"success": True})
+    except:
+        return jsonify({"success": False})
 
 @app.route("/api/shutdown", methods=["POST"])
 def shutdown():
@@ -92,8 +96,6 @@ def restart():
 def logoff():
     if platform.system() == "Windows":
         os.system("shutdown /l")
-    else:
-        os.system("pkill -KILL -u $USER")
     return jsonify({"success": True})
 
 if __name__ == "__main__":

@@ -4,22 +4,18 @@
   <meta charset="UTF-8" />
   <title>Real-Time Process Monitoring Dashboard</title>
 
-  <!-- FONT -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
-
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <div class="app-container">
 
-    <!-- HEADER -->
     <header class="header glass">
       <div>
         <h1>⚙️ OS Process Monitor</h1>
         <p class="subtitle">Real-time system & process dashboard</p>
       </div>
-
       <div class="header-right">
         <div class="pill pill-green">
           <span class="dot"></span>
@@ -29,7 +25,6 @@
       </div>
     </header>
 
-    <!-- TABS -->
     <nav class="tabs glass">
       <button class="tab-btn active" data-tab="overview">📊 Overview</button>
       <button class="tab-btn" data-tab="processes">🧪 Processes</button>
@@ -39,20 +34,38 @@
     <!-- OVERVIEW TAB -->
     <section id="tab-overview" class="tab-page active">
 
-      <!-- CARDS -->
+      <!-- SYSTEM INFO CARDS -->
+      <section class="cards">
+        <div class="card glass">
+          <h2>OS</h2>
+          <p class="value" id="sys-os">--</p>
+        </div>
+        <div class="card glass">
+          <h2>CPU Model</h2>
+          <p class="value" id="sys-cpu">--</p>
+        </div>
+        <div class="card glass">
+          <h2>Total RAM</h2>
+          <p class="value" id="sys-ram">--</p>
+        </div>
+        <div class="card glass">
+          <h2>Uptime</h2>
+          <p class="value" id="sys-uptime">--</p>
+        </div>
+      </section>
+
+      <!-- USAGE CARDS -->
       <section class="cards">
         <div class="card glass">
           <h2>CPU Usage</h2>
           <p class="value" id="cpu-value">--%</p>
           <div class="meter"><div id="cpu-meter-fill" class="meter-fill"></div></div>
         </div>
-
         <div class="card glass">
           <h2>Memory Usage</h2>
           <p class="value" id="mem-value">--%</p>
           <div class="meter"><div id="mem-meter-fill" class="meter-fill"></div></div>
         </div>
-
         <div class="card glass">
           <h2>Disk Usage</h2>
           <p class="value" id="disk-value">--%</p>
@@ -60,13 +73,11 @@
         </div>
       </section>
 
-      <!-- CHARTS -->
       <section class="charts">
         <div class="chart-card glass">
           <h3>CPU & Memory History (Last 60s)</h3>
           <canvas id="cpuMemChart"></canvas>
         </div>
-
         <div class="chart-card glass">
           <h3>Per Core CPU Usage</h3>
           <canvas id="perCoreChart"></canvas>
@@ -74,10 +85,9 @@
       </section>
     </section>
 
-    <!-- PROCESS TABLE -->
+    <!-- PROCESS TAB -->
     <section id="tab-processes" class="tab-page">
       <div class="table-section glass">
-
         <div class="table-header">
           <h2>Top Processes</h2>
           <div class="table-controls">
@@ -106,7 +116,6 @@
           </table>
         </div>
 
-        <!-- PAGINATION -->
         <div class="pagination">
           <button id="prevBtn">⬅ Prev</button>
           <span id="pageInfo"></span>
@@ -120,13 +129,11 @@
     <!-- CONTROL PANEL -->
     <section id="tab-controlPanel" class="tab-page">
       <h2>Control Panel</h2>
-
       <div class="control-buttons">
         <button class="cp-btn danger" onclick="shutdownPC()">Shutdown</button>
         <button class="cp-btn warning" onclick="restartPC()">Restart</button>
         <button class="cp-btn" onclick="logoffPC()">Logoff</button>
       </div>
-
       <p class="hint">⚠️ Do not press during presentation 😅</p>
     </section>
 

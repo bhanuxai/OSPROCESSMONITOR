@@ -218,3 +218,27 @@ tr:hover {
   border: 1px solid rgba(255,255,255,0.3);
   cursor: pointer;
 }
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.pagination button {
+  padding: 6px 12px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.3);
+  cursor: pointer;
+}
+
+th[data-sort] {
+  cursor: pointer;
+  color: #93c5fd;
+}
+
+th[data-sort]:hover {
+  background: rgba(59,130,246,0.2);
+}
