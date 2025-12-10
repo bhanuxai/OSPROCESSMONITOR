@@ -32,7 +32,9 @@ def get_system_summary():
         "disk": {
             "total": disk.total,
             "used": disk.used,
-            "percent": disk.percent
+            "percent": disk.percent,
+            "temperature": get_cpu_temp(),
+
         },
         "system": {
             "os": platform.system(),
@@ -41,6 +43,20 @@ def get_system_summary():
             "uptime": str(uptime_delta).split('.')[0]
         }
     }
+
+def get_cpu_temp():
+    try:
+        temps = psutil.sensors_temperatures()
+        if not temps:
+            return None
+        
+        for name, entries in temps.items():
+            for entry in entries:
+                if entry.current:
+                    return entry.current
+    except:
+        return None
+
 
 def get_process_list(limit=200):
     processes = []

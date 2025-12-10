@@ -67,6 +67,14 @@ function fmtPercent(v) { return v.toFixed(1) + "%"; }
 // ====================================
 // Summary API
 // ====================================
+
+let tempEl = document.getElementById("sys-temp");
+let t = data.temperature;
+
+if (t > 80) tempEl.className = "value hot";
+else if (t > 60) tempEl.className = "value warn";
+else tempEl.className = "value";
+
 async function fetchSummary() {
   const res = await fetch("/api/summary");
   const data = await res.json();
@@ -92,6 +100,9 @@ async function fetchSummary() {
   document.getElementById("mem-meter-fill").style.width = data.memory.percent + "%";
   document.getElementById("disk-value").textContent = fmtPercent(data.disk.percent);
   document.getElementById("disk-meter-fill").style.width = data.disk.percent + "%";
+
+  document.getElementById("sys-temp").textContent =
+  data.temperature ? data.temperature + " °C" : "N/A";
 
   cpuMemChart.update();
   perCoreChart.data.labels = data.per_cpu.map((_, i) => "Core " + i);

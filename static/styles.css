@@ -302,3 +302,9 @@ th[data-sort]:hover {
   justify-content: space-between;
   margin-top: 12px;
 }
+.value.warn {
+  color: #facc15;
+}
+.value.hot {
+  color: #ef4444;
+}
