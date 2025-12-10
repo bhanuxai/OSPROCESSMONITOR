@@ -97,6 +97,14 @@ def logoff():
     if platform.system() == "Windows":
         os.system("shutdown /l")
     return jsonify({"success": True})
+@app.route("/api/processes/<int:pid>/kill", methods=["POST"])
+def api_kill_process(pid):
+    try:
+        psutil.Process(pid).kill()
+        return jsonify({"success": True})
+    except:
+        return jsonify({"success": False})
+
 
 if __name__ == "__main__":
     app.run(debug=True)

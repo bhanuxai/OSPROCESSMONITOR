@@ -1,4 +1,4 @@
-// Tabs
+// ================== Tabs ==================
 document.querySelectorAll(".tab-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
@@ -8,18 +8,28 @@ document.querySelectorAll(".tab-btn").forEach((btn) => {
   });
 });
 
+// ================== Toast Function ==================
+function showToast(message, isError = false) {
+  const container = document.getElementById("toast-container");
+  const div = document.createElement("div");
+  div.className = "toast" + (isError ? " error" : "");
+  div.textContent = message;
+  container.appendChild(div);
+
+  setTimeout(() => div.remove(), 4000);
+}
+
+// ================== Charts ==================
 let cpuMemChart, perCoreChart;
 let historyLabels = [];
 let cpuHistory = [];
 let memHistory = [];
+
 let latestProcesses = [];
 
 // sorting
 let currentSort = "cpu";
-let sortCpu = true;
-let sortMem = true;
-let sortPid = true;
-let sortName = true;
+let sortCpu = true, sortMem = true, sortPid = true, sortName = true;
 
 // pagination
 let currentPage = 1;
@@ -56,7 +66,7 @@ function initCharts() {
   });
 }
 
-// Click sorting
+// ================== Column Sorting ==================
 document.querySelectorAll("th[data-sort]").forEach(th => {
   th.addEventListener("click", () => {
     const field = th.getAttribute("data-sort");
@@ -71,6 +81,7 @@ document.querySelectorAll("th[data-sort]").forEach(th => {
   });
 });
 
+// ================== Summary Fetch ==================
 async function fetchSummary() {
   const res = await fetch("/api/summary");
   const data = await res.json();
@@ -87,7 +98,6 @@ async function fetchSummary() {
 
   updateMeters(data.cpu_percent, data.memory.percent, data.disk.percent);
 
-  // Update system cards
   document.getElementById("sys-os").textContent = data.system.os;
   document.getElementById("sys-cpu").textContent = data.system.cpu;
   document.getElementById("sys-ram").textContent = data.system.total_ram + " GB";
@@ -101,12 +111,14 @@ async function fetchSummary() {
   document.getElementById("current-time").textContent = "Last update: " + data.time;
 }
 
+// ================== Process Fetch ==================
 async function fetchProcesses() {
   const res = await fetch("/api/processes?limit=200");
   latestProcesses = await res.json();
   renderProcessTable();
 }
 
+// ================== Render Table ==================
 function renderProcessTable() {
   const tbody = document.getElementById("process-tbody");
   const searchTerm = document.getElementById("process-search").value.toLowerCase();
@@ -148,7 +160,7 @@ function renderProcessTable() {
     `Page ${currentPage} of ${Math.ceil(result.length / rowsPerPage)}`;
 }
 
-// pagination buttons
+// ================== Pagination ==================
 document.getElementById("prevBtn").addEventListener("click", () => {
   if (currentPage > 1) {
     currentPage--;
@@ -160,27 +172,41 @@ document.getElementById("nextBtn").addEventListener("click", () => {
   renderProcessTable();
 });
 
-// Kill
+// ================== Kill ==================
 async function killProcess(pid) {
   if (!confirm("Kill process " + pid + "?")) return;
-  await fetch("/api/processes/" + pid + "/kill", { method: "POST" });
+
+  const res = await fetch("/api/processes/" + pid + "/kill", { method: "POST" });
+  const data = await res.json();
+
+  if (data.success) {
+    showToast("✔ Process " + pid + " killed");
+  } else {
+    showToast("❌ Failed to kill " + pid, true);
+  }
+
   fetchProcesses();
 }
 
-// Shutdown / restart / logoff
+// ================== System Actions ==================
 async function shutdownPC() {
   if (confirm("Shutdown computer?")) {
     await fetch("/api/shutdown", { method: "POST" });
+    showToast("⚠ Shutdown command sent");
   }
 }
+
 async function restartPC() {
   if (confirm("Restart computer?")) {
     await fetch("/api/restart", { method: "POST" });
+    showToast("⚠ Restart command sent");
   }
 }
+
 async function logoffPC() {
   if (confirm("Logoff user?")) {
     await fetch("/api/logoff", { method: "POST" });
+    showToast("⚠ Logoff command sent");
   }
 }
 

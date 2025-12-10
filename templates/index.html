@@ -36,22 +36,10 @@
 
       <!-- SYSTEM INFO CARDS -->
       <section class="cards">
-        <div class="card glass">
-          <h2>OS</h2>
-          <p class="value" id="sys-os">--</p>
-        </div>
-        <div class="card glass">
-          <h2>CPU Model</h2>
-          <p class="value" id="sys-cpu">--</p>
-        </div>
-        <div class="card glass">
-          <h2>Total RAM</h2>
-          <p class="value" id="sys-ram">--</p>
-        </div>
-        <div class="card glass">
-          <h2>Uptime</h2>
-          <p class="value" id="sys-uptime">--</p>
-        </div>
+        <div class="card glass"><h2>OS</h2><p class="value" id="sys-os">--</p></div>
+        <div class="card glass"><h2>CPU Model</h2><p class="value" id="sys-cpu">--</p></div>
+        <div class="card glass"><h2>Total RAM</h2><p class="value" id="sys-ram">--</p></div>
+        <div class="card glass"><h2>Uptime</h2><p class="value" id="sys-uptime">--</p></div>
       </section>
 
       <!-- USAGE CARDS -->
@@ -75,7 +63,7 @@
 
       <section class="charts">
         <div class="chart-card glass">
-          <h3>CPU & Memory History (Last 60s)</h3>
+          <h3>CPU & Memory History</h3>
           <canvas id="cpuMemChart"></canvas>
         </div>
         <div class="chart-card glass">
@@ -138,6 +126,9 @@
     </section>
 
   </div>
+
+  <!-- TOAST CONTAINER -->
+  <div id="toast-container"></div>
 
   <script src="{{ url_for('static', filename='main.js') }}"></script>
 </body>
