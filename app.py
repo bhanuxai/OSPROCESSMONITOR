@@ -42,7 +42,7 @@ def get_system_summary():
         }
     }
 
-def get_process_list(limit=40):
+def get_process_list(limit=60):
     processes = []
     for p in psutil.process_iter(["pid", "name", "cpu_percent", "memory_percent", "status"]):
         try:
@@ -70,14 +70,12 @@ def api_summary():
 
 @app.route("/api/processes")
 def api_processes():
-    limit = request.args.get("limit", default=40, type=int)
-    return jsonify(get_process_list(limit))
+    return jsonify(get_process_list())
 
 @app.route("/api/processes/<int:pid>/kill", methods=["POST"])
 def api_kill_process(pid):
     try:
-        p = psutil.Process(pid)
-        p.kill()
+        psutil.Process(pid).kill()
         return jsonify({"success": True})
     except:
         return jsonify({"success": False})
@@ -97,13 +95,6 @@ def logoff():
     if platform.system() == "Windows":
         os.system("shutdown /l")
     return jsonify({"success": True})
-@app.route("/api/processes/<int:pid>/kill", methods=["POST"])
-def api_kill_process(pid):
-    try:
-        psutil.Process(pid).kill()
-        return jsonify({"success": True})
-    except:
-        return jsonify({"success": False})
 
 
 if __name__ == "__main__":

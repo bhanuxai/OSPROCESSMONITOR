@@ -11,30 +11,29 @@
 <body>
   <div class="app-container">
 
+    <!-- HEADER -->
     <header class="header glass">
       <div>
         <h1>⚙️ OS Process Monitor</h1>
         <p class="subtitle">Real-time system & process dashboard</p>
       </div>
       <div class="header-right">
-        <div class="pill pill-green">
-          <span class="dot"></span>
-          <span>LIVE</span>
-        </div>
+        <div class="pill pill-green"><span class="dot"></span><span>LIVE</span></div>
         <span id="current-time" class="time-text"></span>
       </div>
     </header>
 
+    <!-- TABS -->
     <nav class="tabs glass">
       <button class="tab-btn active" data-tab="overview">📊 Overview</button>
       <button class="tab-btn" data-tab="processes">🧪 Processes</button>
       <button class="tab-btn" data-tab="controlPanel">🛠 Control Panel</button>
     </nav>
 
-    <!-- OVERVIEW TAB -->
+    <!-- OVERVIEW -->
     <section id="tab-overview" class="tab-page active">
 
-      <!-- SYSTEM INFO CARDS -->
+      <!-- SYSTEM INFO -->
       <section class="cards">
         <div class="card glass"><h2>OS</h2><p class="value" id="sys-os">--</p></div>
         <div class="card glass"><h2>CPU Model</h2><p class="value" id="sys-cpu">--</p></div>
@@ -42,7 +41,7 @@
         <div class="card glass"><h2>Uptime</h2><p class="value" id="sys-uptime">--</p></div>
       </section>
 
-      <!-- USAGE CARDS -->
+      <!-- USAGE -->
       <section class="cards">
         <div class="card glass">
           <h2>CPU Usage</h2>
@@ -61,6 +60,7 @@
         </div>
       </section>
 
+      <!-- CHARTS -->
       <section class="charts">
         <div class="chart-card glass">
           <h3>CPU & Memory History</h3>
@@ -71,21 +71,16 @@
           <canvas id="perCoreChart"></canvas>
         </div>
       </section>
+
     </section>
 
-    <!-- PROCESS TAB -->
+    <!-- PROCESSES -->
     <section id="tab-processes" class="tab-page">
       <div class="table-section glass">
+
         <div class="table-header">
           <h2>Top Processes</h2>
-          <div class="table-controls">
-            <input type="text" id="process-search" placeholder="Search by name or PID..." />
-            <select id="sort-select">
-              <option value="cpu">Sort by CPU</option>
-              <option value="memory">Sort by Memory</option>
-              <option value="pid">Sort by PID</option>
-            </select>
-          </div>
+          <input type="text" id="process-search" placeholder="Search by name or PID..." />
         </div>
 
         <div class="table-wrapper">
@@ -102,12 +97,6 @@
             </thead>
             <tbody id="process-tbody"></tbody>
           </table>
-        </div>
-
-        <div class="pagination">
-          <button id="prevBtn">⬅ Prev</button>
-          <span id="pageInfo"></span>
-          <button id="nextBtn">Next ➡</button>
         </div>
 
         <p class="hint">* Updates every 2 seconds.</p>
@@ -127,8 +116,20 @@
 
   </div>
 
-  <!-- TOAST CONTAINER -->
+  <!-- TOAST -->
   <div id="toast-container"></div>
+
+  <!-- KILL MODAL -->
+  <div id="modal-overlay" class="modal-overlay">
+    <div class="modal glass">
+      <h2>Kill Process?</h2>
+      <p id="modal-text"></p>
+      <div class="modal-buttons">
+        <button id="confirmKill" class="cp-btn danger">Kill</button>
+        <button id="cancelKill" class="cp-btn">Cancel</button>
+      </div>
+    </div>
+  </div>
 
   <script src="{{ url_for('static', filename='main.js') }}"></script>
 </body>
