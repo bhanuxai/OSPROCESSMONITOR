@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
   <div class="app-container">
 
@@ -48,11 +49,13 @@
           <p class="value" id="cpu-value">--%</p>
           <div class="meter"><div id="cpu-meter-fill" class="meter-fill"></div></div>
         </div>
+
         <div class="card glass">
           <h2>Memory Usage</h2>
           <p class="value" id="mem-value">--%</p>
           <div class="meter"><div id="mem-meter-fill" class="meter-fill"></div></div>
         </div>
+
         <div class="card glass">
           <h2>Disk Usage</h2>
           <p class="value" id="disk-value">--%</p>
@@ -116,7 +119,7 @@
 
   </div>
 
-  <!-- TOAST -->
+  <!-- TOAST CONTAINER -->
   <div id="toast-container"></div>
 
   <!-- KILL MODAL -->

@@ -53,7 +53,7 @@ function initCharts() {
 }
 
 // =============================
-// Fetch summary
+// Fetch Summary
 // =============================
 async function fetchSummary() {
   const res = await fetch("/api/summary");
@@ -92,7 +92,7 @@ async function fetchSummary() {
 }
 
 // =============================
-// Fetch processes
+// Fetch Processes
 // =============================
 async function fetchProcesses() {
   const res = await fetch("/api/processes");
@@ -185,7 +185,7 @@ document.getElementById("cancelKill").addEventListener("click", () => {
 });
 
 // =============================
-// Control panel actions
+// Control panel
 // =============================
 async function shutdownPC() { if (confirm("Shutdown?")) showToast("Shutdown sent"); }
 async function restartPC() { if (confirm("Restart?")) showToast("Restart sent"); }
